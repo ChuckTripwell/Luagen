@@ -67,30 +67,6 @@
 }
 
 @layer utilities {
-  .text-heading {
-    color: hsl(var(--text-heading));
-  }
-
-  .text-muted-custom {
-    color: hsl(var(--text-muted));
-  }
-
-  .bg-surface {
-    background-color: hsl(var(--surface));
-  }
-
-  .bg-code {
-    background-color: hsl(var(--code-bg));
-  }
-
-  .border-subtle {
-    border-color: hsl(var(--border));
-  }
-
-  .glow-primary {
-    box-shadow: 0 0 20px hsl(var(--primary) / 0.15);
-  }
-
   .transition-fast {
     transition: all 150ms ease;
   }
