@@ -216,8 +216,8 @@ const Index = () => {
                 {urls.kernelos ? (
                   <Button variant="ghost" className="w-full text-muted-foreground hover:text-foreground gap-2 transition-colors" asChild>
                     <a href={urls.kernelos} download>
-                      <Server className="h-4 w-4" />
-                      KernelOS Mirror
+                    <Server className="h-4 w-4" />
+                      Backup Server 2
                     </a>
                   </Button>
                 ) : (
