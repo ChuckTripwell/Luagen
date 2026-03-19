@@ -336,7 +336,7 @@ const Index = () => {
                     { t: "Instant Downloads", d: "Get your Lua files immediately without waiting" },
                     { t: "100% Free & Ad-Free", d: "No hidden costs or annoying advertisements" },
                     { t: "Extensive Collection", d: "Access to over 32,566 Lua files for various Steam games" },
-                    { t: "Triple Fallback System", d: "CDN → GitHub → KernelOS — maximum availability" },
+                    { t: "Triple Fallback System", d: "CDN → GitHub Backup → Backup Server 2 — maximum availability" },
                   ].map((item) => (
                     <div key={item.t} className="flex items-start gap-2.5">
                       <CheckCircle2 className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
