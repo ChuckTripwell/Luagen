@@ -3,42 +3,125 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
-import { Download, CloudDownload, Loader2, RefreshCw, ExternalLink, HelpCircle, Star, CheckCircle2, AlertTriangle } from "lucide-react";
+import {
+  Download,
+  CloudDownload,
+  Loader2,
+  RefreshCw,
+  ExternalLink,
+  HelpCircle,
+  Star,
+  CheckCircle2,
+  AlertTriangle,
+  BookOpen,
+  Server,
+} from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 type State = "idle" | "loading" | "success" | "error";
 
 const CDN_BASE = "https://cdn.revobd.club/lua";
-const BACKUP_BASE = "https://github.com/HasibulHasan098/Luagen/raw/main/lua";
+const GITHUB_BASE = "https://github.com/HasibulHasan098/Luagen/raw/main/lua";
+const KERNELOS_API = "https://kernelos.org/games/download.php";
+
+interface DownloadUrls {
+  primary: string;
+  github: string;
+  kernelos: string | null;
+}
 
 const Index = () => {
   const [gameId, setGameId] = useState("");
   const [state, setState] = useState<State>("idle");
-  const [urls, setUrls] = useState({ primary: "", backup: "" });
+  const [urls, setUrls] = useState<DownloadUrls>({ primary: "", github: "", kernelos: null });
+  const [errorMsg, setErrorMsg] = useState("");
   const { toast } = useToast();
+
+  const fetchKernelOS = async (id: string): Promise<string | null> => {
+    try {
+      const res = await fetch(`${KERNELOS_API}?gen=depotool&id=${id}`);
+      if (!res.ok) return null;
+      const data = await res.json();
+      if (data?.url) return `https://kernelos.org${data.url}`;
+      return null;
+    } catch {
+      return null;
+    }
+  };
 
   const handleGenerate = async () => {
     const id = gameId.trim();
-    if (!id || !/^\d+$/.test(id)) {
-      toast({ title: "Enter a valid Steam Game ID", variant: "destructive" });
+
+    if (!id) {
+      toast({ title: "Game ID required", description: "Please enter a Steam Game ID.", variant: "destructive" });
       return;
     }
+    if (!/^\d+$/.test(id)) {
+      toast({ title: "Invalid Game ID", description: "Steam Game IDs contain numbers only.", variant: "destructive" });
+      return;
+    }
+
     setState("loading");
-    setUrls({ primary: "", backup: "" });
+    setErrorMsg("");
+    setUrls({ primary: "", github: "", kernelos: null });
+
     try {
-      const primary = `${CDN_BASE}/${id}.zip`;
-      const backup = `${BACKUP_BASE}/${id}.zip`;
-      await fetch(primary, { method: "HEAD" }).catch(() => null);
-      setUrls({ primary, backup });
-      setState("success");
+      const primaryUrl = `${CDN_BASE}/${id}.zip`;
+      const githubUrl = `${GITHUB_BASE}/${id}.zip`;
+
+      // Check CDN first
+      const cdnRes = await fetch(primaryUrl, { method: "HEAD" }).catch(() => null);
+
+      if (cdnRes?.ok) {
+        setUrls({ primary: primaryUrl, github: githubUrl, kernelos: null });
+        setState("success");
+        toast({ title: "Archive found on CDN", description: `Lua archive for Game ID ${id} is ready.` });
+        return;
+      }
+
+      // CDN failed — check GitHub backup
+      const ghRes = await fetch(githubUrl, { method: "HEAD" }).catch(() => null);
+
+      if (ghRes?.ok) {
+        setUrls({ primary: githubUrl, github: githubUrl, kernelos: null });
+        setState("success");
+        toast({ title: "Archive found on GitHub", description: "CDN unavailable, using GitHub backup." });
+        return;
+      }
+
+      // Both CDN & GitHub failed — try KernelOS
+      const kernelosUrl = await fetchKernelOS(id);
+
+      if (kernelosUrl) {
+        setUrls({ primary: kernelosUrl, github: githubUrl, kernelos: kernelosUrl });
+        setState("success");
+        toast({ title: "Archive found via KernelOS", description: "Using KernelOS fallback server." });
+        return;
+      }
+
+      // All sources failed
+      setState("error");
+      setErrorMsg("No Lua archive found for this Game ID across all servers.");
+      toast({ title: "Not found", description: "No archive found on CDN, GitHub, or KernelOS.", variant: "destructive" });
     } catch {
       setState("error");
+      setErrorMsg("Unable to reach servers. Check your connection and try again.");
       toast({ title: "Request failed", description: "Check your connection.", variant: "destructive" });
     }
   };
 
-  const reset = () => { setState("idle"); setGameId(""); setUrls({ primary: "", backup: "" }); };
+  const reset = () => {
+    setState("idle");
+    setGameId("");
+    setUrls({ primary: "", github: "", kernelos: null });
+    setErrorMsg("");
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -48,10 +131,10 @@ const Index = () => {
       <header className="border-b border-border px-6 py-4 flex items-center justify-between">
         <span className="text-base font-semibold tracking-tight text-foreground">LuaGen</span>
         <div className="flex items-center gap-4 text-xs text-muted-foreground">
-          <a href="https://steamdb.info/" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-fast flex items-center gap-1">
+          <a href="https://steamdb.info/" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors flex items-center gap-1">
             SteamDB <ExternalLink className="h-3 w-3" />
           </a>
-          <a href="https://github.com/HasibulHasan098/Luagen" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-fast flex items-center gap-1">
+          <a href="https://github.com/HasibulHasan098/Luagen" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors flex items-center gap-1">
             GitHub <ExternalLink className="h-3 w-3" />
           </a>
         </div>
@@ -84,7 +167,7 @@ const Index = () => {
                 <Button
                   onClick={handleGenerate}
                   disabled={state === "loading" || !gameId.trim()}
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-5 transition-fast shrink-0"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-5 transition-colors shrink-0"
                 >
                   {state === "loading" ? <Loader2 className="h-4 w-4 animate-spin" /> : "Generate"}
                 </Button>
@@ -92,7 +175,7 @@ const Index = () => {
                 <Button
                   onClick={reset}
                   variant="outline"
-                  className="border-border text-muted-foreground hover:text-foreground transition-fast shrink-0 gap-1.5"
+                  className="border-border text-muted-foreground hover:text-foreground transition-colors shrink-0 gap-1.5"
                 >
                   <RefreshCw className="h-4 w-4" /> New
                 </Button>
@@ -110,13 +193,13 @@ const Index = () => {
           {state === "loading" && (
             <div className="flex items-center justify-center gap-3 py-4 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin text-primary" />
-              Searching 32,000+ archives...
+              Searching CDN, GitHub &amp; KernelOS...
             </div>
           )}
 
           {/* Success */}
           {state === "success" && (
-          <div className="rounded-lg border border-border bg-secondary p-5 space-y-3">
+            <div className="rounded-lg border border-border bg-secondary p-5 space-y-3">
               <div className="flex items-center gap-2">
                 <div className="h-2 w-2 rounded-full bg-primary" />
                 <span className="text-sm font-medium text-foreground">Archive found</span>
@@ -124,81 +207,58 @@ const Index = () => {
               </div>
               <Separator className="bg-border" />
               <div className="space-y-2">
-                <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground gap-2 transition-fast" asChild>
+                <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground gap-2 transition-colors" asChild>
                   <a href={urls.primary} download>
                     <Download className="h-4 w-4" />
                     Download Lua Archive
                   </a>
                 </Button>
-                <Button variant="ghost" className="w-full text-muted-foreground hover:text-foreground gap-2 transition-fast" asChild>
-                  <a href={urls.backup} download>
-                    <CloudDownload className="h-4 w-4" />
-                    Backup Download
-                  </a>
-                </Button>
+                {urls.kernelos ? (
+                  <Button variant="ghost" className="w-full text-muted-foreground hover:text-foreground gap-2 transition-colors" asChild>
+                    <a href={urls.kernelos} download>
+                      <Server className="h-4 w-4" />
+                      KernelOS Mirror
+                    </a>
+                  </Button>
+                ) : (
+                  <Button variant="ghost" className="w-full text-muted-foreground hover:text-foreground gap-2 transition-colors" asChild>
+                    <a href={urls.github} download>
+                      <CloudDownload className="h-4 w-4" />
+                      GitHub Backup
+                    </a>
+                  </Button>
+                )}
               </div>
             </div>
           )}
 
           {/* Error */}
           {state === "error" && (
-            <p className="text-center text-sm text-destructive">
-              Something went wrong. Please try again.
-            </p>
+            <div className="flex items-start gap-2.5 rounded-lg border border-destructive/30 bg-destructive/10 p-4">
+              <AlertTriangle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+              <p className="text-sm text-destructive">{errorMsg || "Something went wrong. Please try again."}</p>
+            </div>
           )}
 
-          {/* How to install */}
-          <div className="space-y-4 pt-4">
+          {/* Accordions */}
+          <div className="space-y-4 pt-2">
             <Separator className="bg-border" />
 
             <Accordion type="multiple" className="space-y-1">
 
-              {/* FAQ */}
-              <AccordionItem value="faq" className="border border-border rounded-lg overflow-hidden px-4">
+              {/* How to Install */}
+              <AccordionItem value="install" className="border border-border rounded-lg overflow-hidden px-4">
                 <AccordionTrigger className="text-sm font-medium text-foreground hover:no-underline py-4 gap-3">
                   <span className="flex items-center gap-2">
-                    <HelpCircle className="h-4 w-4 text-muted-foreground shrink-0" />
-                    Frequently Asked Questions
+                    <BookOpen className="h-4 w-4 text-muted-foreground shrink-0" />
+                    How to Install Lua Files
                   </span>
-                </AccordionTrigger>
-                <AccordionContent className="pb-4 space-y-4">
-                  {[
-                    {
-                      q: "How do I install the Lua files?",
-                      a: "Download and extract the ZIP file, download Steam Tools from steamtools.net and install it, open Steam Tools, select all files from the extracted folder and drag them onto the Steam Tools icon. Finally, restart Steam for the changes to take effect.",
-                    },
-                    {
-                      q: "How do I find my game's Steam ID?",
-                      a: "Visit the game's Steam store page and look at the URL. The number in the URL is your game's ID. Alternatively, use steamdb.info to search for your game.",
-                    },
-                    {
-                      q: "Are these Lua files safe to use?",
-                      a: "Yes, all our Lua files are scanned and verified. However, always use game modifications responsibly and at your own discretion.",
-                    },
-                    {
-                      q: "What if I can't find my game?",
-                      a: "If you can't find your game's Lua files, please email us. We're constantly expanding our collection with help from the community.",
-                    },
-                  ].map((item, i) => (
-                    <div key={i} className="space-y-1">
-                      <p className="text-sm font-medium text-foreground">{item.q}</p>
-                      <p className="text-xs text-muted-foreground leading-relaxed">{item.a}</p>
-                      {i < 3 && <Separator className="bg-border mt-3" />}
-                    </div>
-                  ))}
-                </AccordionContent>
-              </AccordionItem>
-
-              {/* Install Guide */}
-              <AccordionItem value="install" className="border border-border rounded-lg overflow-hidden px-4">
-                <AccordionTrigger className="text-sm font-medium text-foreground hover:no-underline py-4">
-                  How to Install Lua Files
                 </AccordionTrigger>
                 <AccordionContent className="pb-4 space-y-4">
                   <ol className="space-y-3">
                     {[
-                      { n: "1", t: "Download & Extract", d: "After downloading, right-click the ZIP file and select \"Extract All\" or use your preferred extraction tool" },
-                      { n: "2", t: "Download & Install Steam Tools", d: <>Download Steam Tools from <a href="https://www.steamtools.net/" target="_blank" rel="noopener noreferrer" className="text-foreground hover:underline">steamtools.net</a> and install it on your computer</> },
+                      { n: "1", t: "Download & Extract", d: 'After downloading, right-click the ZIP file and select "Extract All" or use your preferred extraction tool' },
+                      { n: "2", t: "Download & Install Steam Tools", d: <span>Download Steam Tools from <a href="https://www.steamtools.net/" target="_blank" rel="noopener noreferrer" className="text-foreground underline">steamtools.net</a> and install it</span> },
                       { n: "3", t: "Open Steam Tools", d: "Launch Steam Tools after installation is complete" },
                       { n: "4", t: "Select & Drag Files", d: "Select all files from the extracted folder and drag them onto the Steam Tools icon" },
                       { n: "5", t: "Restart Steam", d: "Close and restart Steam completely for the changes to take effect" },
@@ -214,12 +274,52 @@ const Index = () => {
                       </li>
                     ))}
                   </ol>
-                  <div className="flex items-start gap-2 rounded-md border border-border bg-muted/30 p-3 mt-2">
+                  <div className="flex items-start gap-2 rounded-md border border-border bg-muted/30 p-3">
                     <AlertTriangle className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-0.5" />
                     <p className="text-xs text-muted-foreground leading-relaxed">
                       Always backup your original files before installing new Lua files. Use game modifications responsibly and at your own risk.
                     </p>
                   </div>
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* FAQ */}
+              <AccordionItem value="faq" className="border border-border rounded-lg overflow-hidden px-4">
+                <AccordionTrigger className="text-sm font-medium text-foreground hover:no-underline py-4 gap-3">
+                  <span className="flex items-center gap-2">
+                    <HelpCircle className="h-4 w-4 text-muted-foreground shrink-0" />
+                    Frequently Asked Questions
+                  </span>
+                </AccordionTrigger>
+                <AccordionContent className="pb-4 space-y-4">
+                  {[
+                    {
+                      q: "How do I install the Lua files?",
+                      a: "Download and extract the ZIP file, install Steam Tools from steamtools.net, open it, drag all extracted files onto the Steam Tools icon, then restart Steam.",
+                    },
+                    {
+                      q: "How do I find my game's Steam ID?",
+                      a: "Visit the game's Steam store page — the number in the URL is your Game ID. You can also use steamdb.info to search.",
+                    },
+                    {
+                      q: "Are these Lua files safe to use?",
+                      a: "Yes, all Lua files are scanned and verified. However, always use game modifications responsibly and at your own discretion.",
+                    },
+                    {
+                      q: "What if I can't find my game?",
+                      a: "If no archive is found across all servers, please email us. We're constantly expanding our collection.",
+                    },
+                    {
+                      q: "What servers are used?",
+                      a: "We check our primary CDN (cdn.revobd.club), then GitHub backup, and finally KernelOS as a third fallback — all automatically.",
+                    },
+                  ].map((item, i, arr) => (
+                    <div key={i} className="space-y-1">
+                      <p className="text-sm font-medium text-foreground">{item.q}</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{item.a}</p>
+                      {i < arr.length - 1 && <Separator className="bg-border mt-3" />}
+                    </div>
+                  ))}
                 </AccordionContent>
               </AccordionItem>
 
@@ -236,6 +336,7 @@ const Index = () => {
                     { t: "Instant Downloads", d: "Get your Lua files immediately without waiting" },
                     { t: "100% Free & Ad-Free", d: "No hidden costs or annoying advertisements" },
                     { t: "Extensive Collection", d: "Access to over 32,566 Lua files for various Steam games" },
+                    { t: "Triple Fallback System", d: "CDN → GitHub → KernelOS — maximum availability" },
                   ].map((item) => (
                     <div key={item.t} className="flex items-start gap-2.5">
                       <CheckCircle2 className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
