@@ -45,12 +45,7 @@ const Index = () => {
 
       {/* Header */}
       <header className="border-b border-border px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span className="text-lg font-semibold tracking-tight">
-            Lua<span className="text-primary">Gen</span>
-          </span>
-          <span className="text-xs font-mono text-muted-foreground border border-border rounded px-1.5 py-0.5">v2.0</span>
-        </div>
+        <span className="text-base font-semibold tracking-tight text-foreground">LuaGen</span>
         <div className="flex items-center gap-4 text-xs text-muted-foreground">
           <a href="https://steamdb.info/" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-fast flex items-center gap-1">
             SteamDB <ExternalLink className="h-3 w-3" />
@@ -120,9 +115,9 @@ const Index = () => {
 
           {/* Success */}
           {state === "success" && (
-            <div className="rounded-lg border border-accent/30 bg-accent/5 p-5 space-y-3">
+          <div className="rounded-lg border border-border bg-secondary p-5 space-y-3">
               <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-accent" />
+                <div className="h-2 w-2 rounded-full bg-primary" />
                 <span className="text-sm font-medium text-foreground">Archive found</span>
                 <span className="text-xs font-mono text-muted-foreground ml-auto">ID: {gameId}</span>
               </div>
