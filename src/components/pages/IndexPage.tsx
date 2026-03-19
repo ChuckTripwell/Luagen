@@ -13,6 +13,7 @@ import {
   AlertTriangle,
   BookOpen,
   Server,
+  Package,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -23,10 +24,6 @@ import {
 } from "@/components/ui/accordion";
 
 type State = "idle" | "loading" | "success" | "error";
-
-const CDN_BASE = "https://cdn.revobd.club/lua";
-const GITHUB_BASE = "https://github.com/HasibulHasan098/Luagen/raw/main/lua";
-const KERNELOS_API = "https://kernelos.org/games/download.php";
 
 interface DownloadUrls {
   primary: string;
@@ -39,19 +36,6 @@ const Index = () => {
   const [state, setState] = useState<State>("idle");
   const [urls, setUrls] = useState<DownloadUrls>({ primary: "", github: "", kernelos: null });
   const [errorMsg, setErrorMsg] = useState("");
-  
-
-  const fetchKernelOS = async (id: string): Promise<string | null> => {
-    try {
-      const res = await fetch(`${KERNELOS_API}?gen=depotool&id=${id}`);
-      if (!res.ok) return null;
-      const data = await res.json();
-      if (data?.url) return `https://kernelos.org${data.url}`;
-      return null;
-    } catch {
-      return null;
-    }
-  };
 
   const handleGenerate = async () => {
     const id = gameId.trim();
@@ -72,39 +56,20 @@ const Index = () => {
     setUrls({ primary: "", github: "", kernelos: null });
 
     try {
-      const primaryUrl = `${CDN_BASE}/${id}.zip`;
-      const githubUrl = `${GITHUB_BASE}/${id}.zip`;
+      const response = await fetch(`/api/check-lua?id=${id}`);
+      const data = await response.json();
 
-      // Check CDN first
-      const cdnRes = await fetch(primaryUrl, { method: "HEAD" }).catch(() => null);
-
-      if (cdnRes?.ok) {
-        setUrls({ primary: primaryUrl, github: githubUrl, kernelos: null });
+      if (data.success) {
+        setUrls({
+          primary: data.primary,
+          github: data.github,
+          kernelos: data.kernelos
+        });
         setState("success");
-        return;
+      } else {
+        setState("error");
+        setErrorMsg(data.error || "No Lua archive found for this Game ID across all servers.");
       }
-
-      // CDN failed — check GitHub backup
-      const ghRes = await fetch(githubUrl, { method: "HEAD" }).catch(() => null);
-
-      if (ghRes?.ok) {
-        setUrls({ primary: githubUrl, github: githubUrl, kernelos: null });
-        setState("success");
-        return;
-      }
-
-      // Both CDN & GitHub failed — try backup server 2
-      const kernelosUrl = await fetchKernelOS(id);
-
-      if (kernelosUrl) {
-        setUrls({ primary: kernelosUrl, github: githubUrl, kernelos: kernelosUrl });
-        setState("success");
-        return;
-      }
-
-      // All sources failed
-      setState("error");
-      setErrorMsg("No Lua archive found for this Game ID across all servers.");
     } catch {
       setState("error");
       setErrorMsg("Unable to reach servers. Check your connection and try again.");
@@ -125,6 +90,9 @@ const Index = () => {
       <header className="border-b border-border px-6 py-4 flex items-center justify-between">
         <span className="text-base font-semibold tracking-tight text-foreground">LuaGen</span>
         <div className="flex items-center gap-4 text-xs text-muted-foreground">
+          <a href="https://depotool.pages.dev/" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors flex items-center gap-1">
+            DEPO-TOOL <ExternalLink className="h-3 w-3" />
+          </a>
           <a href="https://steamdb.info/" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors flex items-center gap-1">
             SteamDB <ExternalLink className="h-3 w-3" />
           </a>
@@ -207,21 +175,6 @@ const Index = () => {
                     Download Lua Archive
                   </a>
                 </Button>
-                {urls.kernelos ? (
-                  <Button variant="ghost" className="w-full text-muted-foreground hover:text-foreground gap-2 transition-colors" asChild>
-                    <a href={urls.kernelos} download>
-                    <Server className="h-4 w-4" />
-                      Backup Server 2
-                    </a>
-                  </Button>
-                ) : (
-                  <Button variant="ghost" className="w-full text-muted-foreground hover:text-foreground gap-2 transition-colors" asChild>
-                    <a href={urls.github} download>
-                      <CloudDownload className="h-4 w-4" />
-                      GitHub Backup
-                    </a>
-                  </Button>
-                )}
               </div>
             </div>
           )}
@@ -277,6 +230,32 @@ const Index = () => {
                 </AccordionContent>
               </AccordionItem>
 
+              {/* Why LuaGen */}
+              <AccordionItem value="why" className="border border-border rounded-lg overflow-hidden px-4">
+                <AccordionTrigger className="text-sm font-medium text-foreground hover:no-underline py-4 gap-3">
+                  <span className="flex items-center gap-2">
+                    <Star className="h-4 w-4 text-muted-foreground shrink-0" />
+                    Why Choose LuaGen?
+                  </span>
+                </AccordionTrigger>
+                <AccordionContent className="pb-4 space-y-3">
+                  {[
+                    { t: "Instant Downloads", d: "Get your Lua files immediately without waiting" },
+                    { t: "100% Free & Ad-Free", d: "No hidden costs or annoying advertisements" },
+                    { t: "Extensive Collection", d: "Access to over 100k+ Lua files for various Steam games" },
+                    { t: "Triple Fallback System", d: "CDN → GitHub Backup → Backup Server 2 — maximum availability" },
+                  ].map((item) => (
+                    <div key={item.t} className="flex items-start gap-2.5">
+                      <CheckCircle2 className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{item.t}</p>
+                        <p className="text-xs text-muted-foreground">{item.d}</p>
+                      </div>
+                    </div>
+                  ))}
+                </AccordionContent>
+              </AccordionItem>
+
               {/* FAQ */}
               <AccordionItem value="faq" className="border border-border rounded-lg overflow-hidden px-4">
                 <AccordionTrigger className="text-sm font-medium text-foreground hover:no-underline py-4 gap-3">
@@ -317,29 +296,49 @@ const Index = () => {
                 </AccordionContent>
               </AccordionItem>
 
-              {/* Why LuaGen */}
-              <AccordionItem value="why" className="border border-border rounded-lg overflow-hidden px-4">
+              {/* DEPO-TOOL */}
+              <AccordionItem value="depotool" className="border border-border rounded-lg overflow-hidden px-4">
                 <AccordionTrigger className="text-sm font-medium text-foreground hover:no-underline py-4 gap-3">
                   <span className="flex items-center gap-2">
-                    <Star className="h-4 w-4 text-muted-foreground shrink-0" />
-                    Why Choose LuaGen?
+                    <Package className="h-4 w-4 text-muted-foreground shrink-0" />
+                    Need DLCs, Achievements, or Game Fixes?
                   </span>
                 </AccordionTrigger>
-                <AccordionContent className="pb-4 space-y-3">
-                  {[
-                    { t: "Instant Downloads", d: "Get your Lua files immediately without waiting" },
-                    { t: "100% Free & Ad-Free", d: "No hidden costs or annoying advertisements" },
-                    { t: "Extensive Collection", d: "Access to over 32,566 Lua files for various Steam games" },
-                    { t: "Triple Fallback System", d: "CDN → GitHub Backup → Backup Server 2 — maximum availability" },
-                  ].map((item) => (
-                    <div key={item.t} className="flex items-start gap-2.5">
-                      <CheckCircle2 className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{item.t}</p>
-                        <p className="text-xs text-muted-foreground">{item.d}</p>
+                <AccordionContent className="pb-4 space-y-4">
+                  <div className="space-y-3">
+                    <p className="text-sm text-foreground">
+                      For downloading DLCs, unlocking achievements, or applying game fixes, use DEPO-TOOL.
+                    </p>
+                    <div className="rounded-md border border-border bg-muted/30 p-4 space-y-3">
+                      <div className="flex items-start gap-2.5">
+                        <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium text-foreground">Download DLCs</p>
+                          <p className="text-xs text-muted-foreground">Access additional game content and expansions</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2.5">
+                        <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium text-foreground">Unlock Achievements</p>
+                          <p className="text-xs text-muted-foreground">Manage and unlock game achievements</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2.5">
+                        <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium text-foreground">Bypass Ubisoft & Other Auths</p>
+                          <p className="text-xs text-muted-foreground">Bypass authentication requirements</p>
+                        </div>
                       </div>
                     </div>
-                  ))}
+                    <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground gap-2 transition-colors" asChild>
+                      <a href="https://depotool.pages.dev/" target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="h-4 w-4" />
+                        Visit DEPO-TOOL
+                      </a>
+                    </Button>
+                  </div>
                 </AccordionContent>
               </AccordionItem>
 
