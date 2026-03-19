@@ -45,12 +45,7 @@ const Index = () => {
 
       {/* Header */}
       <header className="border-b border-border px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span className="text-lg font-semibold tracking-tight">
-            Lua<span className="text-primary">Gen</span>
-          </span>
-          <span className="text-xs font-mono text-muted-foreground border border-border rounded px-1.5 py-0.5">v2.0</span>
-        </div>
+        <span className="text-base font-semibold tracking-tight text-foreground">LuaGen</span>
         <div className="flex items-center gap-4 text-xs text-muted-foreground">
           <a href="https://steamdb.info/" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-fast flex items-center gap-1">
             SteamDB <ExternalLink className="h-3 w-3" />
