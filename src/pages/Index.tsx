@@ -162,7 +162,7 @@ const Index = () => {
                   disabled={state === "loading" || !gameId.trim()}
                   className="bg-primary hover:bg-primary/90 text-primary-foreground px-5 transition-colors shrink-0"
                 >
-                  {state === "loading" ? <Loader2 className="h-4 w-4 animate-spin" /> : "Generate"}
+                  {state === "loading" ? <IosSpinner className="h-4 w-4" /> : "Generate"}
                 </Button>
               ) : (
                 <Button
