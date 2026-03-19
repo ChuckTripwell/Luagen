@@ -193,7 +193,7 @@ const Index = () => {
           {state === "loading" && (
             <div className="flex items-center justify-center gap-3 py-4 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin text-primary" />
-              Searching CDN, GitHub &amp; KernelOS...
+              Searching CDN, backup servers...
             </div>
           )}
 
@@ -216,8 +216,8 @@ const Index = () => {
                 {urls.kernelos ? (
                   <Button variant="ghost" className="w-full text-muted-foreground hover:text-foreground gap-2 transition-colors" asChild>
                     <a href={urls.kernelos} download>
-                      <Server className="h-4 w-4" />
-                      KernelOS Mirror
+                    <Server className="h-4 w-4" />
+                      Backup Server 2
                     </a>
                   </Button>
                 ) : (
@@ -311,7 +311,7 @@ const Index = () => {
                     },
                     {
                       q: "What servers are used?",
-                      a: "We check our primary CDN (cdn.revobd.club), then GitHub backup, and finally KernelOS as a third fallback — all automatically.",
+                      a: "We check our primary CDN, then a GitHub backup, and finally a third backup server — all automatically.",
                     },
                   ].map((item, i, arr) => (
                     <div key={i} className="space-y-1">
@@ -336,7 +336,7 @@ const Index = () => {
                     { t: "Instant Downloads", d: "Get your Lua files immediately without waiting" },
                     { t: "100% Free & Ad-Free", d: "No hidden costs or annoying advertisements" },
                     { t: "Extensive Collection", d: "Access to over 32,566 Lua files for various Steam games" },
-                    { t: "Triple Fallback System", d: "CDN → GitHub → KernelOS — maximum availability" },
+                    { t: "Triple Fallback System", d: "CDN → GitHub Backup → Backup Server 2 — maximum availability" },
                   ].map((item) => (
                     <div key={item.t} className="flex items-start gap-2.5">
                       <CheckCircle2 className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
