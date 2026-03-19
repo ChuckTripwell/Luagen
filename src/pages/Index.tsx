@@ -311,7 +311,7 @@ const Index = () => {
                     },
                     {
                       q: "What servers are used?",
-                      a: "We check our primary CDN (cdn.revobd.club), then GitHub backup, and finally KernelOS as a third fallback — all automatically.",
+                      a: "We check our primary CDN, then a GitHub backup, and finally a third backup server — all automatically.",
                     },
                   ].map((item, i, arr) => (
                     <div key={i} className="space-y-1">
