@@ -74,7 +74,7 @@ const InstallGuide = () => {
             <span className="text-accent">$</span>{" "}
             <span className="text-foreground">luagen generate</span>{" "}
             <span className="text-primary">--game-id</span>{" "}
-            <span className="text-yellow-400">730</span>
+            <span className="text-accent">730</span>
           </p>
           <p className="text-muted-foreground text-xs">→ Checking CDN... ✓ Found archive</p>
           <p className="text-muted-foreground text-xs">→ Ready: cs2_lua_730.zip (2.4 MB)</p>
