@@ -56,11 +56,13 @@ const Index = () => {
     const id = gameId.trim();
 
     if (!id) {
-      toast({ title: "Game ID required", description: "Please enter a Steam Game ID.", variant: "destructive" });
+      setErrorMsg("Please enter a Steam Game ID.");
+      setState("error");
       return;
     }
     if (!/^\d+$/.test(id)) {
-      toast({ title: "Invalid Game ID", description: "Steam Game IDs contain numbers only.", variant: "destructive" });
+      setErrorMsg("Steam Game IDs contain numbers only.");
+      setState("error");
       return;
     }
 
@@ -78,7 +80,6 @@ const Index = () => {
       if (cdnRes?.ok) {
         setUrls({ primary: primaryUrl, github: githubUrl, kernelos: null });
         setState("success");
-        toast({ title: "Archive found on CDN", description: `Lua archive for Game ID ${id} is ready.` });
         return;
       }
 
@@ -88,28 +89,24 @@ const Index = () => {
       if (ghRes?.ok) {
         setUrls({ primary: githubUrl, github: githubUrl, kernelos: null });
         setState("success");
-        toast({ title: "Archive found on GitHub", description: "CDN unavailable, using GitHub backup." });
         return;
       }
 
-      // Both CDN & GitHub failed — try KernelOS
+      // Both CDN & GitHub failed — try backup server 2
       const kernelosUrl = await fetchKernelOS(id);
 
       if (kernelosUrl) {
         setUrls({ primary: kernelosUrl, github: githubUrl, kernelos: kernelosUrl });
         setState("success");
-        toast({ title: "Archive found via KernelOS", description: "Using KernelOS fallback server." });
         return;
       }
 
       // All sources failed
       setState("error");
       setErrorMsg("No Lua archive found for this Game ID across all servers.");
-      toast({ title: "Not found", description: "No archive found on CDN, GitHub, or KernelOS.", variant: "destructive" });
     } catch {
       setState("error");
       setErrorMsg("Unable to reach servers. Check your connection and try again.");
-      toast({ title: "Request failed", description: "Check your connection.", variant: "destructive" });
     }
   };
 
