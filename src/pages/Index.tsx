@@ -185,7 +185,7 @@ const Index = () => {
           {/* Loading */}
           {state === "loading" && (
             <div className="flex items-center justify-center gap-3 py-4 text-sm text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin text-primary" />
+              <IosSpinner className="h-4 w-4 text-primary" />
               Searching CDN, backup servers...
             </div>
           )}
