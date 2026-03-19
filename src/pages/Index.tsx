@@ -3,8 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
-import { Download, CloudDownload, Loader2, RefreshCw, ExternalLink } from "lucide-react";
+import { Download, CloudDownload, Loader2, RefreshCw, ExternalLink, HelpCircle, Star, CheckCircle2, AlertTriangle } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 type State = "idle" | "loading" | "success" | "error";
 
