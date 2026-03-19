@@ -131,8 +131,8 @@ const InstallGuide = () => {
             </div>
           ))}
 
-          <div className="rounded-lg border border-yellow-500/20 bg-yellow-500/5 p-3 mt-2">
-            <p className="text-xs text-yellow-400 font-medium">⚠ Warning</p>
+          <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3 mt-2">
+            <p className="text-xs text-destructive font-medium">⚠ Warning</p>
             <p className="text-xs text-muted-foreground mt-0.5">
               Always backup your original Steam files before applying any Lua modifications.
             </p>
