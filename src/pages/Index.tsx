@@ -115,9 +115,9 @@ const Index = () => {
 
           {/* Success */}
           {state === "success" && (
-            <div className="rounded-lg border border-accent/30 bg-accent/5 p-5 space-y-3">
+          <div className="rounded-lg border border-border bg-secondary p-5 space-y-3">
               <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-accent" />
+                <div className="h-2 w-2 rounded-full bg-primary" />
                 <span className="text-sm font-medium text-foreground">Archive found</span>
                 <span className="text-xs font-mono text-muted-foreground ml-auto">ID: {gameId}</span>
               </div>
