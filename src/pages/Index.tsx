@@ -150,25 +150,105 @@ const Index = () => {
           {/* How to install */}
           <div className="space-y-4 pt-4">
             <Separator className="bg-border" />
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">How to install</p>
-            <ol className="space-y-3">
-              {[
-                { n: "1", t: "Download & Extract", d: "Right-click the ZIP → Extract All" },
-                { n: "2", t: "Install Steam Tools", d: <a href="https://www.steamtools.net/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">steamtools.net</a> },
-                { n: "3", t: "Drag & Drop Lua Files", d: "Select extracted files → drag onto Steam Tools icon" },
-                { n: "4", t: "Restart Steam", d: "Fully close and relaunch Steam" },
-              ].map((step) => (
-                <li key={step.n} className="flex items-start gap-3">
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-border text-[10px] font-mono text-muted-foreground mt-0.5">
-                    {step.n}
+
+            <Accordion type="multiple" className="space-y-1">
+
+              {/* FAQ */}
+              <AccordionItem value="faq" className="border border-border rounded-lg overflow-hidden px-4">
+                <AccordionTrigger className="text-sm font-medium text-foreground hover:no-underline py-4 gap-3">
+                  <span className="flex items-center gap-2">
+                    <HelpCircle className="h-4 w-4 text-muted-foreground shrink-0" />
+                    Frequently Asked Questions
                   </span>
-                  <div>
-                    <span className="text-sm text-foreground font-medium">{step.t}</span>
-                    <p className="text-xs text-muted-foreground">{step.d}</p>
+                </AccordionTrigger>
+                <AccordionContent className="pb-4 space-y-4">
+                  {[
+                    {
+                      q: "How do I install the Lua files?",
+                      a: "Download and extract the ZIP file, download Steam Tools from steamtools.net and install it, open Steam Tools, select all files from the extracted folder and drag them onto the Steam Tools icon. Finally, restart Steam for the changes to take effect.",
+                    },
+                    {
+                      q: "How do I find my game's Steam ID?",
+                      a: "Visit the game's Steam store page and look at the URL. The number in the URL is your game's ID. Alternatively, use steamdb.info to search for your game.",
+                    },
+                    {
+                      q: "Are these Lua files safe to use?",
+                      a: "Yes, all our Lua files are scanned and verified. However, always use game modifications responsibly and at your own discretion.",
+                    },
+                    {
+                      q: "What if I can't find my game?",
+                      a: "If you can't find your game's Lua files, please email us. We're constantly expanding our collection with help from the community.",
+                    },
+                  ].map((item, i) => (
+                    <div key={i} className="space-y-1">
+                      <p className="text-sm font-medium text-foreground">{item.q}</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{item.a}</p>
+                      {i < 3 && <Separator className="bg-border mt-3" />}
+                    </div>
+                  ))}
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* Install Guide */}
+              <AccordionItem value="install" className="border border-border rounded-lg overflow-hidden px-4">
+                <AccordionTrigger className="text-sm font-medium text-foreground hover:no-underline py-4">
+                  How to Install Lua Files
+                </AccordionTrigger>
+                <AccordionContent className="pb-4 space-y-4">
+                  <ol className="space-y-3">
+                    {[
+                      { n: "1", t: "Download & Extract", d: "After downloading, right-click the ZIP file and select \"Extract All\" or use your preferred extraction tool" },
+                      { n: "2", t: "Download & Install Steam Tools", d: <>Download Steam Tools from <a href="https://www.steamtools.net/" target="_blank" rel="noopener noreferrer" className="text-foreground hover:underline">steamtools.net</a> and install it on your computer</> },
+                      { n: "3", t: "Open Steam Tools", d: "Launch Steam Tools after installation is complete" },
+                      { n: "4", t: "Select & Drag Files", d: "Select all files from the extracted folder and drag them onto the Steam Tools icon" },
+                      { n: "5", t: "Restart Steam", d: "Close and restart Steam completely for the changes to take effect" },
+                    ].map((step) => (
+                      <li key={step.n} className="flex items-start gap-3">
+                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-border text-[10px] font-mono text-muted-foreground mt-0.5">
+                          {step.n}
+                        </span>
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{step.t}</p>
+                          <p className="text-xs text-muted-foreground leading-relaxed">{step.d}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ol>
+                  <div className="flex items-start gap-2 rounded-md border border-border bg-muted/30 p-3 mt-2">
+                    <AlertTriangle className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-0.5" />
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      Always backup your original files before installing new Lua files. Use game modifications responsibly and at your own risk.
+                    </p>
                   </div>
-                </li>
-              ))}
-            </ol>
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* Why LuaGen */}
+              <AccordionItem value="why" className="border border-border rounded-lg overflow-hidden px-4">
+                <AccordionTrigger className="text-sm font-medium text-foreground hover:no-underline py-4 gap-3">
+                  <span className="flex items-center gap-2">
+                    <Star className="h-4 w-4 text-muted-foreground shrink-0" />
+                    Why Choose LuaGen?
+                  </span>
+                </AccordionTrigger>
+                <AccordionContent className="pb-4 space-y-3">
+                  {[
+                    { t: "Instant Downloads", d: "Get your Lua files immediately without waiting" },
+                    { t: "100% Free & Ad-Free", d: "No hidden costs or annoying advertisements" },
+                    { t: "Extensive Collection", d: "Access to over 32,566 Lua files for various Steam games" },
+                  ].map((item) => (
+                    <div key={item.t} className="flex items-start gap-2.5">
+                      <CheckCircle2 className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{item.t}</p>
+                        <p className="text-xs text-muted-foreground">{item.d}</p>
+                      </div>
+                    </div>
+                  ))}
+                </AccordionContent>
+              </AccordionItem>
+
+            </Accordion>
           </div>
         </div>
       </main>
