@@ -38,7 +38,7 @@ const Index = () => {
   const [state, setState] = useState<State>("idle");
   const [urls, setUrls] = useState<DownloadUrls>({ primary: "", github: "", kernelos: null });
   const [errorMsg, setErrorMsg] = useState("");
-  const { toast } = useToast();
+  
 
   const fetchKernelOS = async (id: string): Promise<string | null> => {
     try {
