@@ -145,14 +145,6 @@ npm run preview
 └── package.json
 ```
 
----
-
-## 🔗 Live Demo
-
-👉 [https://luagen.revobd.club](https://luagen.revobd.club)
-
----
-
 ## 📧 Support
 
 For missing files, requests, or issues:  
