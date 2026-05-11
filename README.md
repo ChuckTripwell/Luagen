@@ -21,7 +21,7 @@ LuaGen is a **free and ad-free Lua file generator** for Steam games. By entering
 2. LuaGen checks our **primary API server** (`api.luagen.revobd.club`) to see if a `.zip` archive exists.
 3. If found → instant download.
 4. If not found → fallback to **GitHub backup** (SteamAutoCracks/ManifestHub).
-5. If still not found → fallback to **community backup server**.
+5. If still not found → fallback to **community backup server[CLOSED]**.
 6. Done! 🎉
 
 This triple-fallback architecture makes LuaGen **fast, lightweight, and extremely reliable**.
